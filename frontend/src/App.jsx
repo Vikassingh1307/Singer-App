@@ -18,7 +18,15 @@ const starterTracks = [
 ];
 
 function App() {
-  const [music, setMusic] = useState(starterTracks);
+  const [music, setMusic] = useState(() => {
+    if (typeof window === "undefined") return starterTracks;
+    try {
+      const stored = localStorage.getItem("musicLibrary");
+      return stored ? JSON.parse(stored) : starterTracks;
+    } catch {
+      return starterTracks;
+    }
+  });
   const [title, setTitle] = useState("");
   const [audioFile, setAudioFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
@@ -26,14 +34,36 @@ function App() {
     "Your next viral drop starts with one clean upload.",
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [profileImage, setProfileImage] = useState("");
+  const [profileImage, setProfileImage] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("profileImage") || "";
+  });
 
   async function loadMusic() {
     try {
       const response = await fetch("/api/music");
       const data = await response.json();
       if (data.music?.length) {
-        setMusic([...starterTracks, ...data.music]);
+        setMusic((prev) => {
+          const existingIds = new Set(prev.map((item) => item.id));
+          const merged = [
+            ...prev,
+            ...data.music.filter((item) => !existingIds.has(item.id)),
+          ];
+          return merged;
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function loadProfilePhoto() {
+    try {
+      const response = await fetch("/api/profile/photo");
+      const data = await response.json();
+      if (data.imageUrl) {
+        setProfileImage(data.imageUrl);
       }
     } catch (error) {
       console.error(error);
@@ -42,18 +72,48 @@ function App() {
 
   useEffect(() => {
     loadMusic();
+    loadProfilePhoto();
   }, []);
 
-  function handlePhotoUpload(event) {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("musicLibrary", JSON.stringify(music));
+    }
+  }, [music]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (profileImage) {
+        localStorage.setItem("profileImage", profileImage);
+      } else {
+        localStorage.removeItem("profileImage");
+      }
+    }
+  }, [profileImage]);
+
+  async function handlePhotoUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfileImage(reader.result);
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    try {
+      const response = await fetch("/api/profile/photo", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Profile photo upload failed");
+      }
+
+      setProfileImage(data.imageUrl || "");
       setStatus(`Profile photo ready: ${file.name}`);
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      setStatus(error.message || "Profile photo upload failed.");
+    }
   }
 
   async function handleSubmit(event) {
@@ -84,12 +144,22 @@ function App() {
         throw new Error(data.message || "Upload failed");
       }
 
+      const newTrack = {
+        id: data.music?.id || Date.now().toString(),
+        title: data.music?.title || title,
+        artist: data.music?.artist || "You",
+        image:
+          data.music?.image ||
+          "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80",
+        uri: data.music?.uri || "",
+      };
+
+      setMusic((prev) => [newTrack, ...prev]);
       setStatus(`Uploaded successfully: ${data.music?.title || title}`);
       setTitle("");
       setAudioFile(null);
       setImageFile(null);
       event.target.reset();
-      await loadMusic();
     } catch (error) {
       setStatus(error.message || "Upload failed.");
     } finally {
@@ -106,19 +176,26 @@ function App() {
             <p className="eyebrow">FULL STACK DEVELOPER</p>
             <h1>Hi, I&apos;m Vikas Singh.</h1>
             <p className="hero-copy">
-              I build modern web experiences with sharp UI/UX, motion-rich
-              interfaces, and powerful backend systems.
+              I create modern websites, polished portfolios, and smooth digital
+              experiences with strong UI/UX and clean backend architecture.
             </p>
             <div className="hero-stats">
               <span>React & Node.js</span>
               <span>Modern UI</span>
               <span>API & Auth</span>
             </div>
-            <div className="contact-row">
-              <a href="mailto:vikassinghuit@gmail.com">
-                vikassinghuit@gmail.com
-              </a>
-              <a href="tel:+918182860359">+91 81828 60359</a>
+            <div className="contact-card">
+              <h3>Contact Me</h3>
+              <p>
+                Email:{" "}
+                <a href="mailto:vikassinghuit@gmail.com">
+                  vikassinghuit@gmail.com
+                </a>
+              </p>
+              <p>
+                Phone: <a href="tel:+918182860359">+91 81828 60359</a>
+              </p>
+              <p>Location: India</p>
             </div>
           </div>
 

@@ -3,6 +3,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/auth.routes");
 const musicRoutes = require("./routes/music.routes");
+const profileRoutes = require("./routes/profile.routes");
 
 const app = express();
 app.use(express.json());
@@ -33,6 +34,7 @@ app.get("/api", (req, res) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api/music", musicRoutes);
+app.use("/api/profile", profileRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);

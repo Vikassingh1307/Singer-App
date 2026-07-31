@@ -136,26 +136,27 @@ a {
   color: #e9d5ff;
 }
 
-.contact-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+.contact-card {
   margin-top: 8px;
-}
-
-.contact-row a {
-  display: inline-flex;
-  align-items: center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(125, 211, 252, 0.16);
+  display: grid;
   gap: 6px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(56, 189, 248, 0.12);
-  color: #bae6fd;
-  transition: transform 180ms ease;
 }
 
-.contact-row a:hover {
-  transform: translateY(-2px);
+.contact-card h3 {
+  margin: 0 0 4px;
+}
+
+.contact-card p {
+  margin: 0;
+  color: #cbd5e1;
+}
+
+.contact-card a {
+  color: #7dd3fc;
 }
 
 .profile-card {
