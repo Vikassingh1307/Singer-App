@@ -8,7 +8,7 @@
     "dev": "npx nodemon server.js",
     "start": "node server.js",
     "frontend": "vite",
-    "build": "vite build"
+    "build": "node ./node_modules/vite/bin/vite.js build"
   },
   "keywords": [],
   "author": "",
