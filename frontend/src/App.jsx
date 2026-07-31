@@ -26,6 +26,7 @@ function App() {
     "Your next viral drop starts with one clean upload.",
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState("");
 
   async function loadMusic() {
     try {
@@ -42,6 +43,18 @@ function App() {
   useEffect(() => {
     loadMusic();
   }, []);
+
+  function handlePhotoUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImage(reader.result);
+      setStatus(`Profile photo ready: ${file.name}`);
+    };
+    reader.readAsDataURL(file);
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -89,24 +102,49 @@ function App() {
       <header className="hero-card">
         <div className="hero-glow" />
         <div className="hero-content">
-          <div>
-            <p className="eyebrow">PulseBeat Studio</p>
-            <h1>Create, upload, and launch your sound with style.</h1>
+          <div className="hero-copy-block">
+            <p className="eyebrow">FULL STACK DEVELOPER</p>
+            <h1>Hi, I&apos;m Vikas Singh.</h1>
             <p className="hero-copy">
-              A premium music dashboard with expressive visuals, animated cards,
-              and a modern release flow built for creators.
+              I build modern web experiences with sharp UI/UX, motion-rich
+              interfaces, and powerful backend systems.
             </p>
             <div className="hero-stats">
-              <span>Live uploads</span>
-              <span>Animated gallery</span>
-              <span>Trending-ready UI</span>
+              <span>React & Node.js</span>
+              <span>Modern UI</span>
+              <span>API & Auth</span>
+            </div>
+            <div className="contact-row">
+              <a href="mailto:vikassinghuit@gmail.com">
+                vikassinghuit@gmail.com
+              </a>
+              <a href="tel:+918182860359">+91 81828 60359</a>
             </div>
           </div>
 
-          <div className="hero-panel">
-            <div className="mini-pill">Now trending</div>
-            <h3>Fresh drops in motion</h3>
-            <p>Every release feels alive with a cinematic, immersive layout.</p>
+          <div className="profile-card">
+            <label className="avatar-upload">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+              />
+              <div className="avatar-frame">
+                {profileImage ? (
+                  <img src={profileImage} alt="Vikas Singh" />
+                ) : (
+                  <span>Upload your photo</span>
+                )}
+              </div>
+              <span className="upload-text">Add your photo</span>
+            </label>
+            <div className="profile-info">
+              <h3>Let&apos;s build something amazing</h3>
+              <p>
+                Available for modern web projects, polished portfolio sites, and
+                creative digital experiences.
+              </p>
+            </div>
           </div>
         </div>
       </header>
@@ -114,8 +152,32 @@ function App() {
       <main className="content-grid">
         <section className="panel">
           <div className="panel-header">
-            <h2>Share a new release</h2>
-            <p>Drop your audio file and cover art into the studio.</p>
+            <h2>What I bring</h2>
+            <p>Clean code, great design, and smooth user experiences.</p>
+          </div>
+
+          <div className="feature-list">
+            <article className="feature-card">
+              <h3>Modern Interface</h3>
+              <p>Trendy layouts with subtle motion and premium visual depth.</p>
+            </article>
+            <article className="feature-card">
+              <h3>Reliable Backend</h3>
+              <p>REST APIs, authentication, and scalable server-side logic.</p>
+            </article>
+            <article className="feature-card">
+              <h3>Creative Delivery</h3>
+              <p>
+                From portfolio websites to media-driven apps, I focus on impact.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <h2>Upload demo</h2>
+            <p>Try the live music upload experience below.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="upload-form">
@@ -156,13 +218,6 @@ function App() {
           </form>
 
           <div className="status-box">{status}</div>
-        </section>
-
-        <section className="panel">
-          <div className="panel-header">
-            <h2>Trending library</h2>
-            <p>Fresh tracks styled like a modern music feed.</p>
-          </div>
 
           <div className="music-list">
             {music.length === 0 ? (
